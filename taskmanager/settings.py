@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-#import os
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,7 +30,7 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/accounts/login/'  # Move it to the top for better organization
 LOGIN_REDIRECT_URL = 'task_list'  # Redirect to task list after login
-LOGOUT_REDIRECT_URL = None  # Redirect to login page after logout
+LOGOUT_REDIRECT_URL = '/accounts/login'  # Redirect to login page after logout
 
 
 # Application definition

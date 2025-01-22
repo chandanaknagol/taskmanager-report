@@ -53,7 +53,7 @@ urlpatterns = [
     path('add/', views.add_task, name='add_task'),  # Add a new task
     path('edit/<int:task_id>/', views.edit_task, name='edit_task'),  # Edit a task
     path('delete/<int:task_id>/', views.delete_task, name='delete_task'),  # Delete a task
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
+    #path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
 ]
 
 
