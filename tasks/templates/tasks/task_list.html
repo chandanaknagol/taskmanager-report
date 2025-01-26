@@ -16,28 +16,44 @@
             {% endif %}
             </h3>
 
-            <!-- Form to update task status -->
+            <!-- Form to update task status
             <form method="POST" style="display:inline;">
                 {% csrf_token %}
                 
-                <!-- Hidden field to identify the task -->
+                Hidden field to identify the task 
                 <input type="hidden" name="task_id" value="{{ task.id }}">
 
-                <!-- Status Dropdown -->
+                 Status Dropdown 
                 <select name="status">
                     <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
                     <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
                 </select>
                 
                 <button type="submit">Update Status</button>
+            </form> -->
+
+            <form method="POST" action="{% url 'edit_task' task.id %}" style="display:inline;">
+                {% csrf_token %}
+                <select name="status" class="form-select">
+                    <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                </select>
+                <button type="submit">Update</button>
             </form>
 
             <!--To edit the task-->
+            <!-- <form action="{% url 'edit_task' task.id %}" method="get" style="display:inline;">
+                <button type="submit">Edit</button>
+            </form> -->
+               
+            <!--To Delete the task-->
+            <!-- <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+            </form> -->
             <form action="{% url 'edit_task' task.id %}" method="get" style="display:inline;">
                 <button type="submit">Edit</button>
             </form>
-               
-            <!--To Delete the task-->
             <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit">Delete</button>

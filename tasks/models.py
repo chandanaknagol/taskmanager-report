@@ -22,9 +22,9 @@ class Task(models.Model):
     due_date = models.DateField(default='2025, 12, 12')  
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')  
     tags = models.ManyToManyField(Tag, related_name='tasks', blank=True)  # Many-to-many relationship with tags
-    deadline = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+   #deadline = models.DateField(null=True, blank=True)
+   #created_at = models.DateTimeField(auto_now_add=True)
+   #user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

@@ -39,21 +39,23 @@ Including another URLconf
 #]
 
 from django.contrib import admin  # Import the admin module here
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from tasks import views  # Import your tasks views to use them
 from django.http import HttpResponseRedirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Access the admin interface at /admin/
+    path('tasks/', include('tasks.urls')),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),  # Login page
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  # Logout page
+    #path('accounts/register/', views.register, name='register'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),  # Logout page
     path('', lambda request: HttpResponseRedirect('/accounts/login/')),  # Redirect root to login
     path('tasks/', views.task_list, name='task_list'),  # Task list page
     path('add/', views.add_task, name='add_task'),  # Add a new task
     path('edit/<int:task_id>/', views.edit_task, name='edit_task'),  # Edit a task
     path('delete/<int:task_id>/', views.delete_task, name='delete_task'),  # Delete a task
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
 ]
 
 
