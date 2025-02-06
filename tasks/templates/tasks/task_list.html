@@ -1,67 +1,172 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task List</title>
+    <!-- Include DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
-    <h2>My Tasks</h2>
-    <ul>
-        {% for task in tasks %}
-        <li>
-            <h3>{{ task.title }} - {{ task.category }} 
-            {% if task.status == 'completed' %}
-                (Completed)
-            {% else %}
-                (Pending)
-            {% endif %}
-            </h3>
+    <h1>Task Manager</h1>
+    
+    <!-- DataTable for listing tasks -->
+    <table id="task-table" class="display">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically populated -->
+        </tbody>
+    </table>
 
-            <!-- Form to update task status
-            <form method="POST" style="display:inline;">
-                {% csrf_token %}
-                
-                Hidden field to identify the task 
-                <input type="hidden" name="task_id" value="{{ task.id }}">
+    <!-- Button to add new task -->
+    <button id="add-task-btn">Add New Task</button>
 
-                 Status Dropdown 
-                <select name="status">
-                    <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
-                </select>
-                
-                <button type="submit">Update Status</button>
-            </form> -->
+    <!-- Add/Edit Task Form (Hidden by default) -->
+    <div id="task-form" style="display: none;">
+        <h2 id="form-title">Add New Task</h2>
+        <form id="task-form-element">
+            <label for="title">Title:</label><br>
+            <input type="text" id="title" name="title"><br><br>
 
-            <form method="POST" action="{% url 'edit_task' task.id %}" style="display:inline;">
-                {% csrf_token %}
-                <select name="status" class="form-select">
-                    <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
-                </select>
-                <button type="submit">Update</button>
-            </form>
+            <label for="description">Description:</label><br>
+            <input type="text" id="description" name="description"><br><br>
 
-            <!--To edit the task-->
-            <!-- <form action="{% url 'edit_task' task.id %}" method="get" style="display:inline;">
-                <button type="submit">Edit</button>
-            </form> -->
-               
-            <!--To Delete the task-->
-            <!-- <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Delete</button>
-            </form> -->
-            <form action="{% url 'edit_task' task.id %}" method="get" style="display:inline;">
-                <button type="submit">Edit</button>
-            </form>
-            <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Delete</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'add_task' %}">Add Task</a>
-    <a href="{% url 'logout' %}">Logout</a>
+            <label for="category">Category:</label><br>
+            <input type="text" id="category" name="category"><br><br>
+
+            <label for="status">Status:</label><br>
+            <input type="text" id="status" name="status"><br><br>
+
+            <label for="due_date">Due Date:</label><br>
+            <input type="date" id="due_date" name="due_date"><br><br>
+
+            <button type="submit">Save Task</button>
+            <button type="button" id="cancel-task">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        // Fetch and display tasks
+        function loadTasks() {
+            $.ajax({
+                url: '/api/tasks/', // URL for the API endpoint
+                method: 'GET',
+                success: function(response) {
+                    const tableBody = $('#task-table tbody');
+                    tableBody.empty();
+                    response.forEach(task => {
+                        const taskRow = `
+                            <tr>
+                                <td>${task.id}</td>
+                                <td>${task.title}</td>
+                                <td>${task.description}</td>
+                                <td>${task.category}</td>
+                                <td>${task.status}</td>
+                                <td>${task.due_date}</td>
+                                <td>
+                                    <button class="edit-btn" data-id="${task.id}">Edit</button>
+                                    <button class="delete-btn" data-id="${task.id}">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.append(taskRow);
+                    });
+
+                    // Initialize DataTables
+                    $('#task-table').DataTable();
+                }
+            });
+        }
+
+        // Open Add Task Form
+        $('#add-task-btn').click(function() {
+            $('#task-form').show();
+            $('#form-title').text('Add New Task');
+            $('#task-form-element')[0].reset();
+        });
+
+        // Save task (Add or Edit)
+        $('#task-form-element').submit(function(event) {
+            event.preventDefault();
+            const taskData = {
+                title: $('#title').val(),
+                description: $('#description').val(),
+                category: $('#category').val(),
+                status: $('#status').val(),
+                due_date: $('#due_date').val(),
+            };
+
+            const taskId = $('#form-title').text() === 'Edit Task' ? $('#form-title').data('taskId') : null;
+            const url = taskId ? `/api/tasks/${taskId}/` : '/api/tasks/';
+            const method = taskId ? 'PUT' : 'POST';
+
+            $.ajax({
+                url: url,
+                method: method,
+                data: JSON.stringify(taskData),
+                contentType: 'application/json',
+                success: function() {
+                    $('#task-form').hide();
+                    loadTasks(); // Reload task list
+                }
+            });
+        });
+
+        // Edit task
+        $(document).on('click', '.edit-btn', function() {
+            const taskId = $(this).data('id');
+            $.ajax({
+                url: `/api/tasks/${taskId}/`,
+                method: 'GET',
+                success: function(task) {
+                    $('#task-form').show();
+                    $('#form-title').text('Edit Task').data('taskId', task.id);
+                    $('#title').val(task.title);
+                    $('#description').val(task.description);
+                    $('#category').val(task.category);
+                    $('#status').val(task.status);
+                    $('#due_date').val(task.due_date);
+                }
+            });
+        });
+
+        // Delete task
+        $(document).on('click', '.delete-btn', function() {
+            const taskId = $(this).data('id');
+            $.ajax({
+                url: `/api/tasks/${taskId}/`,
+                method: 'DELETE',
+                success: function() {
+                    loadTasks(); // Reload task list after deletion
+                }
+            });
+        });
+
+        // Cancel adding/editing task
+        $('#cancel-task').click(function() {
+            $('#task-form').hide();
+        });
+
+        // Load tasks on page load
+        $(document).ready(function() {
+            loadTasks();
+        });
+    </script>
 </body>
 </html>
+
+

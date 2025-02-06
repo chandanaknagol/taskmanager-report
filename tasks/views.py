@@ -100,6 +100,10 @@ def edit_task(request, task_id):
     #return render(request, 'register.html', {'form': form})'''
 
     # tasks/views.py
+from rest_framework import viewsets
+from .models import Task
+from .serializers import TaskSerializer
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Task
 from .forms import TaskForm
@@ -134,5 +138,11 @@ def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     task.delete()
     return redirect('task_list')
+
+class TaskViewSet(viewsets.ModelViewSet):
+    """API View to handle CRUD operations for Task model."""
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
 
 
