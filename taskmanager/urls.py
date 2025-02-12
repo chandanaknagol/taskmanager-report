@@ -14,6 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('tasks/', include('tasks.urls')),  # For regular views like task_list, add_task, etc.
+    path('', include('tasks.api_urls')),   # For API views like /api/tasks/
+]
+
 #from django.contrib import admin
 #from django.urls import path, include
 
@@ -60,11 +69,3 @@ Including another URLconf
 
 # ]
 
-from django.contrib import admin
-from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('tasks/', include('tasks.urls')),  # For regular views like task_list, add_task, etc.
-    path('', include('tasks.api_urls')),   # For API views like /api/tasks/
-]
